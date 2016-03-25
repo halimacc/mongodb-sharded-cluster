@@ -1,0 +1,60 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Administrator user name used when provisioning virtual machines (which also becomes a system user administrator in MongoDB)"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Administrator password used when provisioning virtual machines (which is also a password for the system administrator in MongoDB)"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The arbitrary name of the virtual network provisioned for the MongoDB deployment"
+      }
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2015-05-01-preview",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "properties": { "accountType": "Standard_LRS" }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[parameters('virtualNetworkName')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [ "10.0.0.0/16" ]
+        },
+        "subnets": [
+          {
+            "name": "msc-subnet",
+            "properties": { "addressPrefix": "10.0.0.0/24" }
+          }
+        ]
+      }
+    }
+  ]
+}

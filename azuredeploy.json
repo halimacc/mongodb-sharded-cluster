@@ -2,33 +2,52 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "virtualNetworkName": {
+    "uniqueNamePrefix": {
+      "type": "string",
+      "defaultValue": "",
+      "minLength": 2
+    },
+    "adminUserName": {
       "type": "string",
       "defaultValue": ""
     },
-    "storageAccountNamePrefix": {
-      "type": "string",
+    "adminPassword": {
+      "type": "securestring",
       "defaultValue": ""
+    },
+    "replicaCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "minValue": 2,
+      "maxValue": 2
     }
   },
   "variables": {
-    "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
-    "templateBaseUrl": "[variables('scriptUrl')]",
-    "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
-
     "commonSettings": {
-      "location": "[resourceGroup().location]"
+      "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
+      "templateBaseUrl": "[variables('commonSettings').scriptUrl]",
+      "sharedTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'shared-resources.json')]",
+      "replicaTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'replica-resources.json')]"
+
+      "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
+      "location": "[resourceGroup().location]",
+      "adminUsername": "[parameters('adminUsername')]",
+      "adminPassword": "[parameters('adminPassword')]"
     },
+
     "networkSettings": {
-      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "virtualNetworkName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
+      "virtualNetworkID": "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vnetName)]",
       "addressPrefix": "10.0.0.0/16",
       "subnetName": "msc-subnet",
+      "subnetID": "[concat(variables('virtualNetworkID'), '/subnets/', variables('networkSettings').subnetName])",
       "subnetAddressPrefix": "10.0.0.0/24"
     },
-    "storageSettings": {
-    },
-    "machineSettings": {
 
+    "storageSettings": {
+      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, '-sto')]",
+      "storageAccountType": "Standard_LRS",
+      "storageContainerName": "msc-disks"
     }
   },
   "resources": [
@@ -39,7 +58,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('sharedTemplateUrl')]",
+          "uri": "[variables('commonSettings').sharedTemplateUrl]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

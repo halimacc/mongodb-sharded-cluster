@@ -1,0 +1,103 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "commonSettings": {
+      "type": "object"
+    },
+    "storageSettings": {
+      "type": "object"
+    },
+    "networkSettings": {"type": "object"},
+    "replicaSettings": {
+      "type": "object"
+    }
+  },
+  "variables": {
+    "location": "[parameters('commonSettings').location]",
+    "replicaIndex": "[parameters('replicaSettings').replicaIndex]",
+    "replicaElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-repl', variables('replicaIndex'))]",
+
+    "subnetId": "[parameters('replicaSettings').subnetId]",
+    "replicaIpAddress": "[concat(parameters('replicaSettings').replicaIpPrefix, add(parameters('replicaSettings').replicaIpOffset, variables('replicaIndex')))]",
+
+    "adminUsername": "[parameters('commonSettings').adminUsername]",
+    "adminPassword": "[parameters('commonSettings').adminPassword]",
+    "replicaVmOsDiskUri": "[concat('https', parameters('replicaSettings').storageAccoutnName, '.blob.core.windows.net/', parameters('replicaSettings').vhdContainerName, '/', variables('replicaIndex'),'-OsDisk.vhd')]",
+
+    "osImageReference": {
+      "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
+      "offer": "[variables('osFamilyUbuntu').imageOffer]",
+      "sku": "[variables('osFamilyUbuntu').imageSKU]",
+      "version": "latest"
+    },
+
+    "osFamilyUbuntu": {
+      "osName": "ubuntu",
+      "installerBaseUrl": "http://repo.mongodb.org/apt/ubuntu",
+      "installerPackages": "mongodb-org",
+      "imagePublisher": "Canonical",
+      "imageOffer": "UbuntuServer",
+      "imageSKU": "14.04.4-LTS"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('replicaElementNamePrefix'), '-nic')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('replicaIpAddress')]",
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[parameters('commonSettings').location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('replicaElementNamePrefix'), '-nic')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_S1"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[variables('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": "[variables('osImageReference')]",
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[variables('replicaVmOsDiskUri')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('replicaElementNamePrefix'), '-nic'))]"
+            }
+          ]
+        }
+      }
+    },
+  ]
+}

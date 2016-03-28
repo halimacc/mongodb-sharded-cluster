@@ -27,7 +27,7 @@
       "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
       "templateBaseUrl": "[variables('commonSettings').scriptUrl]",
       "sharedTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'shared-resources.json')]",
-      "replicaTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'replica-resources.json')]"
+      "replicaTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'replica-resources.json')]",
 
       "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
       "location": "[resourceGroup().location]",
@@ -103,8 +103,7 @@
             "value": {
               "replicaIndex": "[copyIndex()]",
               "replicaIpPrefix": "10.0.0.",
-              "replicaIpOffset": "[mul(10, add(copyIndex(), 1))]",
-
+              "replicaIpOffset": "[mul(10, add(copyIndex(), 1))]"
             }
           }
         }

@@ -37,10 +37,10 @@
 
     "networkSettings": {
       "virtualNetworkName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
-      "virtualNetworkID": "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vnetName)]",
+      "virtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vnetName)]",
       "addressPrefix": "10.0.0.0/16",
       "subnetName": "msc-subnet",
-      "subnetID": "[concat(variables('virtualNetworkID'), '/subnets/', variables('networkSettings').subnetName])",
+      "subnetId": "[concat(variables('virtualNetworkId'), '/subnets/', variables('networkSettings').subnetName])",
       "subnetAddressPrefix": "10.0.0.0/24"
     },
 
@@ -48,6 +48,10 @@
       "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, '-sto')]",
       "storageAccountType": "Standard_LRS",
       "storageContainerName": "msc-disks"
+    },
+
+    "clusterSettings": {
+      "replicaCount": "[parameters('replicaCount')]"
     }
   },
   "resources": [
@@ -70,6 +74,38 @@
           },
           "networkSettings": {
             "value": "[variables('networkSettings')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "[concat('member-resources', copyindex())]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "copy": {
+        "name": "replicaLoop",
+        "count": "[variables('clusterSettings').replicaCount]"
+      },
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('commonSettings').replicaTemplateUrl]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": { "value": "[variables('commonSettings')]" },
+          "networkSettings": { "value": "[variables('networkSettings')]" },
+          "storageSettings": { "value": "[variables('storageSettings')]" },
+          "replicaSettings": {
+            "value": {
+              "replicaIndex": "[copyIndex()]",
+              "replicaIpPrefix": "10.0.0.",
+              "replicaIpOffset": "[mul(10, add(copyIndex(), 1))]",
+
+            }
           }
         }
       }

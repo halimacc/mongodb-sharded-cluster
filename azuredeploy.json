@@ -147,7 +147,7 @@
           "routerSettings": {
             "value": {
               "routerIpPrefix": "10.0.0.",
-              "routerIpOffset": 2
+              "routerIpOffset": 5
             }
           }
         }

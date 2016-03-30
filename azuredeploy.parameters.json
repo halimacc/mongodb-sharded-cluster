@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "uniqueNamePrefix": {
-            "value": "msce"
+            "value": "mscf"
         },
         "adminUserName": {
             "value": "chong"

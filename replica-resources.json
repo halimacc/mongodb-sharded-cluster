@@ -15,7 +15,7 @@
     "___networkInterface": "",
     "nicName": "[concat(variables('replicaElementNamePrefix'), '-nic')]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "nicIpAddr": "[concat(parameters('replicaSettings').replicaIpPrefix, add(parameters('replicaSettings').replicaIpOffset, variables('replicaIndex')))]",
+    "nicIpAddr": "[concat(parameters('replicaSettings').replicaIpPrefix, parameters('replicaSettings').replicaIpOffset)]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
     "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
     "___vm": "",

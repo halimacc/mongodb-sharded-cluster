@@ -1,0 +1,142 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "commonSettings": { "type": "object" },
+    "storageSettings": { "type": "object" },
+    "networkSettings": { "type": "object" },
+    "routerSettings": { "type": "object" }
+  },
+  "variables": {
+    "location": "[parameters('commonSettings').location]",
+    "routerElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-rout')]",
+    "nsgName": "[concat(variables('routerElementNamePrefix'), '-nsg')]",
+    "publicIpAddrName": "[concat(variables('routerElementNamePrefix'), '-pubip')]",
+    "publicIpAddrId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddrName'))]",
+    "nicName": "[concat(variables('routerElementNamePrefix'), '-nic')]",
+    "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+    "nicIpAddr": "[concat(parameters('routerSettings').routerIpPrefix, parameters('routerSettings').routerIpOffset)]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
+    "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
+    "vmName": "[concat(variables('routerElementNamePrefix'), '-vm')]",
+    "vmSize": "Standard_D1",
+    "routerVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-router.vhd')]",
+    "osImageReference": {
+      "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
+      "offer": "[variables('osFamilyUbuntu').imageOffer]",
+      "sku": "[variables('osFamilyUbuntu').imageSKU]",
+      "version": "latest"
+    },
+
+    "osFamilyUbuntu": {
+      "osName": "ubuntu",
+      "installerBaseUrl": "http://repo.mongodb.org/apt/ubuntu",
+      "installerPackages": "mongodb-org",
+      "imagePublisher": "Canonical",
+      "imageOffer": "UbuntuServer",
+      "imageSKU": "14.04.4-LTS"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "description": "Allows SSH traffic",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('publicIpAddrName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIpAddrName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfigJumpbox",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('nicIpAddr')]",
+              "publicIPAddress": {
+                "id": "[variables('publicIpAddrId')]"
+              },
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('commonSettings').adminUsername]",
+          "adminPassword": "[parameters('commonSettings').adminPassword]"
+        },
+        "storageProfile": {
+          "imageReference": "[variables('osImageReference')]",
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[variables('routerVmOsDiskUri')]"
+            },
+            "caching": "None",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[variables('nicId')]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

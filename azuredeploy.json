@@ -86,7 +86,7 @@
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "networkSettings": { "value": "[variables('networkSettings')]" },
           "storageSettings": { "value": "[variables('storageSettings')]" },
-          "configsrcSettings": {
+          "configsrvSettings": {
             "value": {
               "configsrvIpPrefix": "10.0.0.",
               "configsrvIpOffset": 8

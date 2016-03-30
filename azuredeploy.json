@@ -71,7 +71,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "name": "[concat('member-resources', copyindex())]",
+      "name": "[concat('replica-resources', copyindex())]",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
       ],

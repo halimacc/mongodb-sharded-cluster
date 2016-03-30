@@ -42,7 +42,7 @@
       "subnetAddrPrefix": "10.0.0.0/24"
     },
     "storageSettings": {
-      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, 'Sto')]",
+      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, 'sto')]",
       "storageAccountType": "Standard_LRS",
       "storageContainerName": "mscDisks"
     },

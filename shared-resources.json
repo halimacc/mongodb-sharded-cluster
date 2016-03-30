@@ -2,33 +2,18 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "commonSettings": {
-      "type": "object",
-      "metadata": {
-        "Description": "Common settings object"
-      }
-    },
-    "storageSettings": {
-      "type": "object",
-      "metadata": {
-        "Description": "Storage settings object"
-      }
-    },
-    "networkSettings": {
-      "type": "object",
-      "metadata": {
-        "Description": "Network settings object"
-      }
-    }
+    "commonSettings": { "type": "object" },
+    "storageSettings": { "type": "object" },
+    "networkSettings": { "type": "object" }
   },
   "variables": {
     "___common": "",
     "location": "[parameters('commonSettings').location]",
     "___virtualNetwork": "",
     "vnetName": "[parameters('networkSettings').vnetName]",
-    "vnetAddrPrefix": "[parameters('networkSettings').addressPrefix]",
+    "vnetAddrPrefix": "[parameters('networkSettings').vnetAddrPrefix]",
     "subnetName": "[parameters('networkSettings').subnetName]",
-    "subnetAddrPrefix": "[parameters('networkSettings').subnetAddressPrefix]",
+    "subnetAddrPrefix": "[parameters('networkSettings').subnetAddrPrefix]",
     "___storage": "",
     "storageAccountName": "[parameters('storageSettings').storageAccountName]",
     "storageAccountType": "[parameters('storageSettings').storageAccountType]"

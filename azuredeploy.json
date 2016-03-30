@@ -23,33 +23,29 @@
     }
   },
   "variables": {
-    "commonSettings": {
-      "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
-      "templateBaseUrl": "[variables('commonSettings').scriptUrl]",
-      "sharedTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'shared-resources.json')]",
-      "replicaTemplateUrl": "[concat(variables('commonSettings').templateBaseUrl, 'replica-resources.json')]",
+    "___template___": "",
+    "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
+    "templateBaseUrl": "[variables('scriptUrl')]",
+    "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
+    "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
 
+    "commonSettings": {
       "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
       "location": "[resourceGroup().location]",
       "adminUsername": "[parameters('adminUsername')]",
       "adminPassword": "[parameters('adminPassword')]"
     },
-
     "networkSettings": {
-      "virtualNetworkName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
-      "virtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks', variables('networkSettings').vnetName)]",
-      "addressPrefix": "10.0.0.0/16",
+      "vnetName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
+      "vnetAddrPrefix": "10.0.0.0/16",
       "subnetName": "msc-subnet",
-      "subnetId": "[concat(variables('virtualNetworkId'), '/subnets/', variables('networkSettings').subnetName])",
-      "subnetAddressPrefix": "10.0.0.0/24"
+      "subnetAddrPrefix": "10.0.0.0/24"
     },
-
     "storageSettings": {
       "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, '-sto')]",
       "storageAccountType": "Standard_LRS",
       "storageContainerName": "msc-disks"
     },
-
     "clusterSettings": {
       "replicaCount": "[parameters('replicaCount')]"
     }
@@ -62,19 +58,13 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('commonSettings').sharedTemplateUrl]",
+          "uri": "[variables('sharedTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
-          },
-          "storageSettings": {
-            "value": "[variables('storageSettings')]"
-          },
-          "networkSettings": {
-            "value": "[variables('networkSettings')]"
-          }
+          "commonSettings": { "value": "[variables('commonSettings')]" },
+          "networkSettings": { "value": "[variables('networkSettings')]" },
+          "storageSettings": { "value": "[variables('storageSettings')]" }
         }
       }
     },
@@ -92,7 +82,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('commonSettings').replicaTemplateUrl]",
+          "uri": "[variables('replicaTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

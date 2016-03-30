@@ -2,19 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "commonSettings": {
-      "type": "object"
-    },
-    "networkSettings": {
-      "type": "object"
-    },
-    "storageSettings": {
-      "type": "object"
-    },
-
-    "replicaSettings": {
-      "type": "object"
-    }
+    "commonSettings": { "type": "object" },
+    "networkSettings": { "type": "object" },
+    "storageSettings": { "type": "object" },
+    "replicaSettings": { "type": "object" }
   },
   "variables": {
     "___common": "",
@@ -25,7 +16,8 @@
     "nicName": "concat(variables('replicaElementNamePrefix'), '-nic')",
     "nicId": "resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
     "nicIpAddr": "[concat(parameters('replicaSettings').replicaIpPrefix, add(parameters('replicaSettings').replicaIpOffset, variables('replicaIndex')))]",
-    "subnetId": "[parameters('networkSettings').subnetId]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
+    "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
     "___vm": "",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",

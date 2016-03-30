@@ -11,9 +11,9 @@
     "___common": "",
     "location": "[parameters('commonSettings').location]",
     "replicaIndex": "[parameters('replicaSettings').replicaIndex]",
-    "replicaElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, 'Repl', variables('replicaIndex'))]",
+    "replicaElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-repl', variables('replicaIndex'))]",
     "___networkInterface": "",
-    "nicName": "concat(variables('replicaElementNamePrefix'), 'Nic')",
+    "nicName": "concat(variables('replicaElementNamePrefix'), '-nic')",
     "nicId": "resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
     "nicIpAddr": "[concat(parameters('replicaSettings').replicaIpPrefix, add(parameters('replicaSettings').replicaIpOffset, variables('replicaIndex')))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
@@ -62,18 +62,18 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(variables('replicaElementNamePrefix'), 'Vm')]",
+      "name": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[parameters('commonSettings').location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('replicaElementNamePrefix'), 'Nic')]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "Standard_S1"
         },
         "osProfile": {
-          "computerName": "[concat(variables('replicaElementNamePrefix'), 'Vm')]",
+          "computerName": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
           "adminUsername": "[variables('adminUsername')]",
           "adminPassword": "[variables('adminPassword')]"
         },

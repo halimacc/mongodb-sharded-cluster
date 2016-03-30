@@ -28,6 +28,7 @@
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
     "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
     "configsrvTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsrv-resources.json')]",
+    "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
 
     "commonSettings": {
       "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
@@ -120,6 +121,33 @@
               "replicaIndex": "[copyIndex()]",
               "replicaIpPrefix": "10.0.0.",
               "replicaIpOffset": "[mul(16, add(copyIndex(), 1))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "router-resources",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]",
+        "replicaLoop"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('routerTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": { "value": "[variables('commonSettings')]" },
+          "networkSettings": { "value": "[variables('networkSettings')]" },
+          "storageSettings": { "value": "[variables('storageSettings')]" },
+          "routerSettings": {
+            "value": {
+              "routerIpPrefix": "10.0.0.",
+              "routerIpOffset": 2
             }
           }
         }

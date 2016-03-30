@@ -14,13 +14,13 @@
     "___networkInterface": "",
     "nicName": "[concat(variables('configsrvElementNamePrefix'), '-nic')]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "nicIpAddr": "[concat(parameters('configsrvSettings').configsrvIpPrefix, parameters('configsrvSettings').replicaIpOffset)]",
+    "nicIpAddr": "[concat(parameters('configsrvSettings').configsrvIpPrefix, parameters('configsrvSettings').configsrvIpOffset)]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
     "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
     "___vm": "",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
-    "replicaVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-configsrv.vhd')]",
+    "configsrvVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-configsrv.vhd')]",
 
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
@@ -81,7 +81,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[variables('replicaVmOsDiskUri')]"
+              "uri": "[variables('configsrvVmOsDiskUri')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

@@ -36,15 +36,15 @@
       "adminPassword": "[parameters('adminPassword')]"
     },
     "networkSettings": {
-      "vnetName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
+      "vnetName": "[concat(variables('commonSettings').uniqueNamePrefix, 'Vnet')]",
       "vnetAddrPrefix": "10.0.0.0/16",
-      "subnetName": "msc-subnet",
+      "subnetName": "mscSubnet",
       "subnetAddrPrefix": "10.0.0.0/24"
     },
     "storageSettings": {
-      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, '-sto')]",
+      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, 'Sto')]",
       "storageAccountType": "Standard_LRS",
-      "storageContainerName": "msc-disks"
+      "storageContainerName": "mscDisks"
     },
     "clusterSettings": {
       "replicaCount": "[parameters('replicaCount')]"

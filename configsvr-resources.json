@@ -22,7 +22,7 @@
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
     "configsvrVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-configsvr.vhd')]",
-    "commandToExecute": "[concat('./install-mongo.sh', '-i ', variables('nicIpAddr'), '-c ', 'configsvr', '-r ', 'confReplSet')]",
+    "commandToExecute": "[concat('bash install-mongo.sh', '-i ', variables('nicIpAddr'), '-c ', 'configsvr', '-r ', 'confReplSet')]",
 
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",

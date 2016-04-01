@@ -5,22 +5,24 @@
     "commonSettings": { "type": "object" },
     "networkSettings": { "type": "object" },
     "storageSettings": { "type": "object" },
-    "configsrvSettings": { "type": "object" }
+    "configsvrSettings": { "type": "object" }
   },
   "variables": {
     "___common": "",
     "location": "[parameters('commonSettings').location]",
-    "configsrvElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-conf')]",
+    "configsvrElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-conf')]",
     "___networkInterface": "",
-    "nicName": "[concat(variables('configsrvElementNamePrefix'), '-nic')]",
+    "nicName": "[concat(variables('configsvrElementNamePrefix'), '-nic')]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "nicIpAddr": "[concat(parameters('configsrvSettings').configsrvIpPrefix, parameters('configsrvSettings').configsrvIpOffset)]",
+    "nicIpAddr": "[concat(parameters('configsvrSettings').configsvrIpPrefix, parameters('configsvrSettings').configsvrIpOffset)]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
     "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
     "___vm": "",
+    "vmName": "[concat(variables('configsvrElementNamePrefix'), '-vm')]",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
-    "configsrvVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-configsrv.vhd')]",
+    "configsvrVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-configsvr.vhd')]",
+    "commandToExecute": "[concat('./install-mongo.sh', '-i', variables('nicIpAddr'), '-c', 'configsvr', '-r', 'confReplSet')]",
 
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
@@ -61,7 +63,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(variables('configsrvElementNamePrefix'), '-vm')]",
+      "name": "[variables('vmName')]",
       "apiVersion": "2015-05-01-preview",
       "location": "[parameters('commonSettings').location]",
       "dependsOn": [
@@ -72,7 +74,7 @@
           "vmSize": "Standard_D1"
         },
         "osProfile": {
-          "computerName": "[concat(variables('configsrvElementNamePrefix'), '-vm')]",
+          "computerName": "[concat(variables('configsvrElementNamePrefix'), '-vm')]",
           "adminUsername": "[variables('adminUsername')]",
           "adminPassword": "[variables('adminPassword')]"
         },
@@ -81,7 +83,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[variables('configsrvVmOsDiskUri')]"
+              "uri": "[variables('configsvrVmOsDiskUri')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -93,6 +95,26 @@
               "id": "[variables('nicId')]"
             }
           ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'), '/installmongodb')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "settings": {
+          "fileUris": "[parameters('commonSettings').mongoScriptUrl]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('commandToExecute')]"
         }
       }
     }

@@ -27,14 +27,18 @@
     "templateBaseUrl": "[variables('scriptUrl')]",
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
     "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
-    "configsrvTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsrv-resources.json')]",
+    "configsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsvr-resources.json')]",
     "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
+    
 
     "commonSettings": {
       "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
       "location": "[resourceGroup().location]",
       "adminUsername": "[parameters('adminUsername')]",
-      "adminPassword": "[parameters('adminPassword')]"
+      "adminPassword": "[parameters('adminPassword')]",
+      "mongoScriptUris": [
+        "[concat(variables('templateBaseUrl'), 'install-mongo.sh')]"
+      ]
     },
     "networkSettings": {
       "vnetName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
@@ -72,24 +76,24 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "name": "configsrv-resources",
+      "name": "configsvr-resources",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('configsrvTemplateUrl')]",
+          "uri": "[variables('configsvrTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "networkSettings": { "value": "[variables('networkSettings')]" },
           "storageSettings": { "value": "[variables('storageSettings')]" },
-          "configsrvSettings": {
+          "configsvrSettings": {
             "value": {
-              "configsrvIpPrefix": "10.0.0.",
-              "configsrvIpOffset": 8
+              "configsvrIpPrefix": "10.0.0.",
+              "configsvrIpOffset": 8
             }
           }
         }

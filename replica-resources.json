@@ -112,7 +112,7 @@
         "type": "CustomScriptForLinux",
         "typeHandlerVersion": "1.4",
         "settings": {
-          "fileUris": "[parameters('commonSettings').mongoScriptUrl]"
+          "fileUris": "[parameters('commonSettings').mongoScriptUris]"
         },
         "protectedSettings": {
           "commandToExecute": "[variables('commandToExecute')]"

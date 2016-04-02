@@ -15,7 +15,7 @@
       "type": "securestring",
       "defaultValue": ""
     },
-    "replicaCount": {
+    "shardCount": {
       "type": "int",
       "defaultValue": 2,
       "minValue": 2,
@@ -26,7 +26,7 @@
     "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
     "templateBaseUrl": "[variables('scriptUrl')]",
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
-    "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
+    "shardTemplateUrl": "[concat(variables('templateBaseUrl'), 'shard-resources.json')]",
     "configsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsvr-resources.json')]",
     "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
     
@@ -52,7 +52,7 @@
       "storageContainerName": "msc-disks"
     },
     "clusterSettings": {
-      "replicaCount": "[parameters('replicaCount')]"
+      "shardCount": "[parameters('shardCount')]"
     }
   },
   "resources": [
@@ -102,29 +102,29 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "name": "[concat('replica-resources', copyindex())]",
+      "name": "[concat('shardsvr', copyindex(),'-resources')]",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
       ],
       "copy": {
-        "name": "replicaLoop",
-        "count": "[variables('clusterSettings').replicaCount]"
+        "name": "shardsvrLoop",
+        "count": "[variables('clusterSettings').shardCount]"
       },
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('replicaTemplateUrl')]",
+          "uri": "[variables('shardTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "networkSettings": { "value": "[variables('networkSettings')]" },
           "storageSettings": { "value": "[variables('storageSettings')]" },
-          "replicaSettings": {
+          "shardsvrSettings": {
             "value": {
-              "replicaIndex": "[copyIndex()]",
-              "replicaIpPrefix": "10.0.0.",
-              "replicaIpOffset": "[mul(16, add(copyIndex(), 1))]"
+              "shardsvrIndex": "[copyIndex()]",
+              "shardsvrIpPrefix": "10.0.0.",
+              "shardsvrIpOffset": "[mul(16, add(copyIndex(), 1))]"
             }
           }
         }
@@ -136,7 +136,7 @@
       "name": "router-resources",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', 'shared-resources')]",
-        "replicaLoop"
+        "shardsvrLoop"
       ],
       "properties": {
         "mode": "Incremental",

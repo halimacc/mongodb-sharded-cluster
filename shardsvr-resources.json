@@ -5,24 +5,24 @@
     "commonSettings": { "type": "object" },
     "networkSettings": { "type": "object" },
     "storageSettings": { "type": "object" },
-    "replicaSettings": { "type": "object" }
+    "shardsvrSettings": { "type": "object" }
   },
   "variables": {
     "___common": "",
     "location": "[parameters('commonSettings').location]",
-    "replicaIndex": "[parameters('replicaSettings').replicaIndex]",
-    "replicaElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-repl', variables('replicaIndex'))]",
+    "shardsvrIndex": "[parameters('shardsvrSettings').shardsvrIndex]",
+    "shardsvrElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-repl', variables('shardsvrIndex'))]",
     "___networkInterface": "",
-    "nicName": "[concat(variables('replicaElementNamePrefix'), '-nic')]",
+    "nicName": "[concat(variables('shardsvrElementNamePrefix'), '-nic')]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "nicIpAddr": "[concat(parameters('replicaSettings').replicaIpPrefix, parameters('replicaSettings').replicaIpOffset)]",
+    "nicIpAddr": "[concat(parameters('shardsvrSettings').shardsvrIpPrefix, parameters('shardsvrSettings').shardsvrIpOffset)]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
     "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
     "___vm": "",
-    "vmName": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
+    "vmName": "[concat(variables('shardsvrElementNamePrefix'), '-vm')]",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
-    "replicaVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-', variables('replicaIndex'), '.vhd')]",
+    "shardsvrVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-', variables('shardsvrIndex'), '.vhd')]",
     "commandToExecute": "[concat('bash install-mongo.sh', ' -i ', variables('nicIpAddr'), ' -c ', 'shardsvr', ' -r ', 'confReplSet')]",
 
     "osImageReference": {
@@ -75,7 +75,7 @@
           "vmSize": "Standard_D1"
         },
         "osProfile": {
-          "computerName": "[concat(variables('replicaElementNamePrefix'), '-vm')]",
+          "computerName": "[concat(variables('shardsvrElementNamePrefix'), '-vm')]",
           "adminUsername": "[variables('adminUsername')]",
           "adminPassword": "[variables('adminPassword')]"
         },
@@ -84,7 +84,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[variables('replicaVmOsDiskUri')]"
+              "uri": "[variables('shardsvrVmOsDiskUri')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

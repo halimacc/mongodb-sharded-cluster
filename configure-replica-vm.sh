@@ -197,7 +197,7 @@ configure_shardsvr()
 	log "Configuring mongod as shard server"
 
 	cfg="{
-		_id: '$REPLICA_SET_NAME'
+		_id: '$REPLICA_SET_NAME',
 		members: [
 			{_id: 1, host: '$NODE_IP_ADDRESS:$MONGODB_PORT'}
 		]

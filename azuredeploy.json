@@ -29,7 +29,6 @@
     "shardsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'shardsvr-resources.json')]",
     "configsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsvr-resources.json')]",
     "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
-    
 
     "commonSettings": {
       "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
@@ -37,7 +36,7 @@
       "adminUsername": "[parameters('adminUsername')]",
       "adminPassword": "[parameters('adminPassword')]",
       "mongoScriptUris": [
-        "[concat(variables('templateBaseUrl'), 'install-mongo.sh')]"
+        "[concat(variables('templateBaseUrl'), 'configure-replica-vm.sh')]"
       ]
     },
     "networkSettings": {

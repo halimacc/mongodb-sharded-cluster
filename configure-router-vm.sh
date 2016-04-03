@@ -110,26 +110,16 @@ start_mongos()
 {
 	log "Starting mongos service"
 
-	mkdir /var/run/mongodb
-	touch /var/run/mongodb/mongos.pid
-	chmod 777 /var/run/mongodb/mongos.pid
-
 	tee /etc/mongos.conf > /dev/null <<EOF
 systemLog:
     destination: file
-    path: var/log/mongodb/mongod.log
+    path: /var/log/mongodb/mongos.log
     quiet: true
     logAppend: true
-processManagement:
-    fork: true
-    pidFilePath: /var/run/mongodb/mongos.pid
 net:
     port: $MONGODB_PORT
-storage:
-    journal:
-        enabled: true
-sharding
-	configDB: con/10.0.0.8:$MONGODB_PORT
+sharding:
+    configDB: con/10.0.0.8:$MONGODB_PORT
 EOF
 	
 	nohup mongos --config /etc/mongos.conf &
@@ -144,8 +134,9 @@ configure_sharded_cluster()
 
 	for i in $(seq 1 $SHARD_COUNT)
 	do
+		shardName=sha$[ $i - 1 ]
 		shardIp=$[ 16 * $i ]
-		mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "sh.addShard('sha$i/10.0.0.$shardIp:$MONGODB_PORT')"	
+		mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "sh.addShard('$shardName/10.0.0.$shardIp:$MONGODB_PORT')"	
 	done
 }
 

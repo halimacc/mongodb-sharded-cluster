@@ -9,7 +9,7 @@
   },
   "variables": {
     "location": "[parameters('commonSettings').location]",
-    "namePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, parameters('routerSettings').routerName)]",
+    "namePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-', parameters('routerSettings').routerName)]",
     "nsgName": "[concat(variables('namePrefix'), '-nsg')]",
     "publicIpAddrName": "[concat(variables('namePrefix'), '-pubip')]",
     "publicIpAddrId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddrName'))]",

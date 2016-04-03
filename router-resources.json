@@ -9,18 +9,20 @@
   },
   "variables": {
     "location": "[parameters('commonSettings').location]",
-    "routerElementNamePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, '-rout')]",
-    "nsgName": "[concat(variables('routerElementNamePrefix'), '-nsg')]",
-    "publicIpAddrName": "[concat(variables('routerElementNamePrefix'), '-pubip')]",
+    "namePrefix": "[concat(parameters('commonSettings').uniqueNamePrefix, parameters('routerSettings').routerName)]",
+    "nsgName": "[concat(variables('namePrefix'), '-nsg')]",
+    "publicIpAddrName": "[concat(variables('namePrefix'), '-pubip')]",
     "publicIpAddrId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddrName'))]",
-    "nicName": "[concat(variables('routerElementNamePrefix'), '-nic')]",
+    "nicName": "[concat(variables('namePrefix'), '-nic')]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "nicIpAddr": "[concat(parameters('routerSettings').routerIpPrefix, parameters('routerSettings').routerIpOffset)]",
+    "nicIpAddr": "[parameters('routerSettings').ip]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkSettings').vnetName)]",
     "subnetId": "[concat(variables('vnetID'), '/subnets/', parameters('networkSettings').subnetName)]",
-    "vmName": "[concat(variables('routerElementNamePrefix'), '-vm')]",
+    "vmName": "[concat(variables('namePrefix'), '-vm')]",
     "vmSize": "Standard_D1",
-    "routerVmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-router.vhd')]",
+    "vmOsDiskUri": "[concat('https://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/', parameters('storageSettings').storageContainerName, '/','disk-os-', parameters('routerSettings').routerName,'.vhd')]",
+    "commandToExecute": "[concat('bash configure-router-vm.sh', ' -i ',  variables('nicIpAddr'), ' -s ', parameters('routerSettings').shardCount)]",
+
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
       "offer": "[variables('osFamilyUbuntu').imageOffer]",
@@ -123,7 +125,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[variables('routerVmOsDiskUri')]"
+              "uri": "[variables('vmOsDiskUri')]"
             },
             "caching": "None",
             "createOption": "FromImage"
@@ -135,6 +137,26 @@
               "id": "[variables('nicId')]"
             }
           ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'), '/configureroutervm')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "settings": {
+          "fileUris": "[parameters('commonSettings').mongoScriptUris]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('commandToExecute')]"
         }
       }
     }

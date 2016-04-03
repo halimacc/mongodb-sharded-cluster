@@ -35,7 +35,8 @@
       "adminUsername": "[parameters('adminUsername')]",
       "adminPassword": "[parameters('adminPassword')]",
       "mongoScriptUris": [
-        "[concat(variables('templateBaseUrl'), 'configure-replica-vm.sh')]"
+        "[concat(variables('templateBaseUrl'), 'configure-replica-vm.sh')]",
+        "[concat(variables('templateBaseUrl'), 'configure-router-vm.sh')]"
       ]
     },
     "networkSettings": {
@@ -152,8 +153,9 @@
           "storageSettings": { "value": "[variables('storageSettings')]" },
           "routerSettings": {
             "value": {
-              "routerIpPrefix": "10.0.0.",
-              "routerIpOffset": 5
+              "routerName": "rou",
+              "ip": "10.0.0.5",
+              "shardCount": "[variables('clusterSettings').shardCount]"
             }
           }
         }

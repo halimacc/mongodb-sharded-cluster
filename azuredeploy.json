@@ -26,8 +26,7 @@
     "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
     "templateBaseUrl": "[variables('scriptUrl')]",
     "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
-    "shardsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'shardsvr-resources.json')]",
-    "configsvrTemplateUrl": "[concat(variables('templateBaseUrl'), 'configsvr-resources.json')]",
+    "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
     "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
 
     "commonSettings": {
@@ -82,17 +81,19 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('configsvrTemplateUrl')]",
+          "uri": "[variables('replicaTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "networkSettings": { "value": "[variables('networkSettings')]" },
           "storageSettings": { "value": "[variables('storageSettings')]" },
-          "configsvrSettings": {
+          "replicaSettings": {
             "value": {
-              "configsvrIpPrefix": "10.0.0.",
-              "configsvrIpOffset": 8
+              "replicaName": "con",
+              "clusterRole": "configsvr",
+              "ipPrefix": "10.0.0.",
+              "ipOffset": 8
             }
           }
         }
@@ -112,18 +113,19 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('shardsvrTemplateUrl')]",
+          "uri": "[variables('replicaTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "networkSettings": { "value": "[variables('networkSettings')]" },
           "storageSettings": { "value": "[variables('storageSettings')]" },
-          "shardsvrSettings": {
+          "replicaSettings": {
             "value": {
-              "shardsvrIndex": "[copyIndex()]",
-              "shardsvrIpPrefix": "10.0.0.",
-              "shardsvrIpOffset": "[mul(16, add(copyIndex(), 1))]"
+              "replicaName": "[concat('sha', copyIndex())]",
+              "clusterRole": "shardsvr",
+              "ipPrefix": "10.0.0.",
+              "ipOffset": "[mul(16, add(copyIndex(), 1))]"
             }
           }
         }
@@ -135,6 +137,7 @@
       "name": "router-resources",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/', 'shared-resources')]",
+        "[concat('Microsoft.Resources/deployments/', 'configsvr-resources')]",
         "shardsvrLoop"
       ],
       "properties": {

@@ -12,9 +12,10 @@
     },
     "configServersSize": {
       "type": "string",
-      "defaultValue": "Development",
+      "defaultValue": "Small",
       "allowedValues": [
-        "Development"
+        "XSmall",
+        "Small"
       ],
       "metadata": {
         "description": "Replica size of Config Servers component in cluster."
@@ -31,9 +32,10 @@
     },
     "shardSize": {
       "type": "string",
-      "defaultValue": "Development",
+      "defaultValue": "Small",
       "allowedValues": [
-        "Development"
+        "XSmall",
+        "Small"
       ],
       "metadata": {
         "description": "Replica size of single Shard component in cluster."

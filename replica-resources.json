@@ -6,9 +6,14 @@
     "replicaSettings": { "type": "object" }
   },
   "variables": {
-    "replicaDevelopment": {
+    "replicaXSmall": {
       "storageAccountCount": 1,
-      "nodeCount": 1,
+      "nodeCount": 2,
+      "arbiter": "Enabled"
+    },
+    "replicaSmall": {
+      "storageAccountCount": 1,
+      "nodeCount": 3,
       "arbiter": "Disabled"
     },
 

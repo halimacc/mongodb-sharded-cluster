@@ -31,7 +31,7 @@
     "storageAccountCount": "[variables('replicaSpec').storageAccountCount]",
 
     "repoUrl": "[parameters('commonSettings').repoUrl]",
-    "nodeTemplateUrl": "[concat(variables('repoUrl'), 'replica-node-resources', variables('replicaSize'))]",
+    "nodeTemplateUrl": "[concat(variables('repoUrl'), 'replica-node-resources', '-', variables('replicaSize'))]",
     "nodeCount": "[variables('replicaSpec').nodeCount]",
 
     "arbiterTemplateEnabled": "arbiter-resources.json",

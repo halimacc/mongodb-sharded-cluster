@@ -3,16 +3,16 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountPrefix": {
-      "value": "mscp"
+      "value": "mscq"
     },
     "configServersSize": {
-      "value": "Development"
+      "value": "Small"
     },
     "shardCount": {
       "value": 2
     },
     "shardSize": {
-      "value": "Development"
+      "value": "Small"
     },
     "routerCount": {
       "value": 1

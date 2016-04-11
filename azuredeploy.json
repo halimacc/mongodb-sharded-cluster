@@ -5,7 +5,7 @@
     "storageAccountPrefix": {
       "type": "string",
       "defaultValue": "",
-      "maxLength": 15,
+      "maxLength": 14,
       "metadata": {
         "description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed (this name will be used as a prefix to create one or more storage accounts)"
       }
@@ -76,6 +76,9 @@
       "storageContainerName": "msc-disks",
 
       "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'), '/subnets/', variables('subnetName')))]",
+
+      "adminUsername": "[parameters('adminUsername')]",
+      "adminPassword": "[parameters('adminPassword')]",
 
       "shardCount": "[parameters('shardCount')]"
     },

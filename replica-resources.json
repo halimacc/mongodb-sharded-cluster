@@ -25,12 +25,13 @@
     "storageAccountType": "[parameters('commonSettings').storageAccountType]",
     "storageAccountCount": "[variables('replicaSpec').storageAccountCount]",
 
-    "nodeTemplateUrl": "[concat('replica-node-resources', variables('replicaSize'))]",
+    "repoUrl": "[parameters('commonSettings').repoUrl]",
+    "nodeTemplateUrl": "[concat(variables('repoUrl'), 'replica-node-resources', variables('replicaSize'))]",
     "nodeCount": "[variables('replicaSpec').nodeCount]",
 
     "arbiterTemplateEnabled": "arbiter-resources.json",
     "arbiterTemplateDisabled": "empty-resources.json",
-    "arbiterTemplateUrl": "[variables(concat('arbiterTemplate', variables('replicaSpec').arbiter))]"
+    "arbiterTemplateUrl": "[concat(variables('repoUrl'), variables(concat('arbiterTemplate', variables('replicaSpec').arbiter)))]"
   },
   "resources": [
     {

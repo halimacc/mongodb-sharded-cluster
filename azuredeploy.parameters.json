@@ -1,15 +1,28 @@
 ﻿{
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "uniqueNamePrefix": {
-            "value": "msco"
-        },
-        "adminUserName": {
-            "value": "chong"
-        },
-        "adminPassword": {
-            "value": "User@123"
-        }
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountPrefix": {
+      "value": "msco"
+    },
+    "configServersSize": {
+      "value": "Development"
+    },
+    "shardCount": {
+      "value": 2
+    },
+    "shardSize": {
+      "value": "Development"
+    },
+    "routerCount": {
+      "value": 1
+    },
+    "adminUsername": {
+      "value": "chong"
+    },
+    "adminPassword": {
+      "value": "User@123"
     }
+
+  }
 }

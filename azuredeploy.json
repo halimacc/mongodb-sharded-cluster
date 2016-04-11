@@ -75,7 +75,7 @@
       "storageAccountType": "Standard_LRS",
       "storageContainerName": "msc-disks",
 
-      "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'), '/subnets/', variables('subnetName')))]",
+      "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '/subnets/', variables('subnetName'))]",
 
       "adminUsername": "[parameters('adminUsername')]",
       "adminPassword": "[parameters('adminPassword')]",

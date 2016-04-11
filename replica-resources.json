@@ -12,7 +12,7 @@
       "arbiter": "Disabled"
     },
 
-    "replicaSize": "[parameters('commonSettings').replicaSize]",
+    "replicaSize": "[parameters('replicaSettings').replicaSize]",
     "replicaSpec": "[variables(concat('replica', variables('replicaSize')))]",
 
     "location": "[parameters('commonSettings').location]",

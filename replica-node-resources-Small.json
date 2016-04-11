@@ -86,7 +86,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(variables('vhdPathPrefix'), '-osdisk')]"
+              "uri": "[concat(variables('vhdPathPrefix'), '-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"

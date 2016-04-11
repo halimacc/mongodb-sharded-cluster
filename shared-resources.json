@@ -32,7 +32,7 @@
         },
         "subnets": [
           {
-            "name": "[variables('subnetName')]",
+            "name": "[concat(variables('subnetName'), copyIndex())]",
             "properties": {
               "addressPrefix": "[variables('subnetAddrPrefix')]"
             }

@@ -2,79 +2,112 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "uniqueNamePrefix": {
+    "storageAccountPrefix": {
       "type": "string",
       "defaultValue": "",
-      "minLength": 3,
-      "maxLength": 7,
-      "metadata": { "description": "unique name prefix for Azure resources in cluster, 3-7 characters." }
+      "maxLength": 15,
+      "metadata": {
+        "description": "Unique namespace for the Storage Account where the Virtual Machine's disks will be placed (this name will be used as a prefix to create one or more storage accounts)"
+      }
     },
-    "adminUserName": {
+    "configServersSize": {
       "type": "string",
-      "defaultValue": "",
-      "metadata": { "description": "username of administrator for all Ubuntu virtual machines." }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": { "description": "password of administrator for all Ubuntu virtual machines." }
+      "defaultValue": "Development",
+      "allowedValues": [
+        "Development"
+      ],
+      "metadata": {
+        "description": "Replica size of Config Servers component in cluster."
+      }
     },
     "shardCount": {
       "type": "int",
       "defaultValue": 2,
       "minValue": 2,
-      "maxValue": 2,
-      "metadata": { "description": "count of shard component in cluster, fixed to 2 for now." }
+      "maxValue": 16,
+      "metadata": {
+        "description": "Count of Shard component in cluster, 2 Shards at least are required."
+      }
+    },
+    "shardSize": {
+      "type": "string",
+      "defaultValue": "Development",
+      "allowedValues": [
+        "Development"
+      ],
+      "metadata": {
+        "description": "Replica size of single Shard component in cluster."
+      }
+    },
+    "routerCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 1,
+      "metadata": {
+        "description": "Count of Router component in cluster, 1 Router at least is required."
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Administrator user name used when provisioning virtual machines"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Administrator password used when provisioning virtual machines"
+      }
     }
   },
   "variables": {
-    "scriptUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
-    "templateBaseUrl": "[variables('scriptUrl')]",
-    "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'shared-resources.json')]",
-    "replicaTemplateUrl": "[concat(variables('templateBaseUrl'), 'replica-resources.json')]",
-    "routerTemplateUrl": "[concat(variables('templateBaseUrl'), 'router-resources.json')]",
+    "virtualNetworkName": "msc-vnet",
+    "virtualNetworkAddressPrefix": "10.0.0.0/16",
+    "subnetName": "msc-subnet",
+    "subnetAddressPrefix": "10.0.0.0/16",
 
     "commonSettings": {
-      "uniqueNamePrefix": "[parameters('uniqueNamePrefix')]",
       "location": "[resourceGroup().location]",
-      "adminUsername": "[parameters('adminUsername')]",
-      "adminPassword": "[parameters('adminPassword')]",
-      "mongoScriptUris": [
-        "[concat(variables('templateBaseUrl'), 'configure-replica-vm.sh')]",
-        "[concat(variables('templateBaseUrl'), 'configure-router-vm.sh')]"
-      ]
-    },
-    "networkSettings": {
-      "vnetName": "[concat(variables('commonSettings').uniqueNamePrefix, '-vnet')]",
-      "vnetAddrPrefix": "10.0.0.0/16",
-      "subnetName": "msc-subnet",
-      "subnetAddrPrefix": "10.0.0.0/24"
-    },
-    "storageSettings": {
-      "storageAccountName": "[concat(variables('commonSettings').uniqueNamePrefix, 'sto')]",
+      "repoUrl": "https://raw.githubusercontent.com/halimacc/mongodb-sharded-cluster/master/",
+
+      "storageAccountNamePrefix": "[parameters('storageAccountPrefix')]",
       "storageAccountType": "Standard_LRS",
-      "storageContainerName": "msc-disks"
-    },
-    "clusterSettings": {
+      "storageContainerName": "msc-disks",
+
+      "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'), '/subnets/', variables('subnetName')))]",
+
       "shardCount": "[parameters('shardCount')]"
-    }
+    },
+
+    "replicaTemplateUrl": "[concat(variables('commonSettings').repoUrl, 'replica-resources.json')]",
+    "routerTemplateUrl": "[concat(variables('commonSettings').repoUrl, 'router-resources.json')]",
+
+    "configsvrSize": "[parameters('configServersSize')]",
+    "shardsvrSize": "[parameters('shardSize')]",
+
+    "routerCount": "[parameters('routerCount')]"
   },
   "resources": [
     {
-      "name": "shared-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[variables('commonSettings').location]",
       "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('sharedTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('virtualNetworkAddressPrefix')]"
+          ]
         },
-        "parameters": {
-          "commonSettings": { "value": "[variables('commonSettings')]" },
-          "networkSettings": { "value": "[variables('networkSettings')]" },
-          "storageSettings": { "value": "[variables('storageSettings')]" }
-        }
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetAddressPrefix')]"
+            }
+          }
+        ]
       }
     },
     {
@@ -82,7 +115,7 @@
       "apiVersion": "2015-01-01",
       "name": "configsvr-resources",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+        "[concat('Microsoft.Resources/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -92,14 +125,12 @@
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
-          "networkSettings": { "value": "[variables('networkSettings')]" },
-          "storageSettings": { "value": "[variables('storageSettings')]" },
           "replicaSettings": {
             "value": {
-              "replicaName": "con",
+              "replicaName": "configsvr",
               "clusterRole": "configsvr",
-              "ipPrefix": "10.0.0.",
-              "ipOffset": 8
+              "replicaSize": "[variables('configsvrSize')]",
+              "ipPrefix": "10.0.1."
             }
           }
         }
@@ -110,11 +141,11 @@
       "apiVersion": "2015-01-01",
       "name": "[concat('shardsvr', copyindex(),'-resources')]",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+        "[concat('Microsoft.Resources/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
       "copy": {
-        "name": "shardsvrLoop",
-        "count": "[variables('clusterSettings').shardCount]"
+        "count": "[variables('commonSettings').shardCount]",
+        "name": "shardsvrLoop"
       },
       "properties": {
         "mode": "Incremental",
@@ -124,43 +155,12 @@
         },
         "parameters": {
           "commonSettings": { "value": "[variables('commonSettings')]" },
-          "networkSettings": { "value": "[variables('networkSettings')]" },
-          "storageSettings": { "value": "[variables('storageSettings')]" },
           "replicaSettings": {
             "value": {
-              "replicaName": "[concat('sha', copyIndex())]",
+              "replicaName": "[concat('shard', copyIndex())]",
               "clusterRole": "shardsvr",
-              "ipPrefix": "10.0.0.",
-              "ipOffset": "[mul(16, add(copyIndex(), 1))]"
-            }
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "name": "router-resources",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]",
-        "[concat('Microsoft.Resources/deployments/', 'configsvr-resources')]",
-        "shardsvrLoop"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('routerTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "commonSettings": { "value": "[variables('commonSettings')]" },
-          "networkSettings": { "value": "[variables('networkSettings')]" },
-          "storageSettings": { "value": "[variables('storageSettings')]" },
-          "routerSettings": {
-            "value": {
-              "routerName": "rou",
-              "ip": "10.0.0.5",
-              "shardCount": "[variables('clusterSettings').shardCount]"
+              "replicaSize": "[variables('shardsvrSize')]",
+              "ipPrefix": "[concat('10.0.', add(copyIndex(), 2), '.')]"
             }
           }
         }

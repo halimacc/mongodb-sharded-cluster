@@ -1,0 +1,125 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "commonSettings": { "type": "object" },
+    "replicaSettings": { "type": "object" },
+    "nodeSettings": { "type": "object"}
+  },
+  "variables": {
+    "location": "[parameters('commonSettings').location]",
+    "nodeName": "[concat(parameters('replicaSettings').replicaName, '-', parameters('nodeSettings').nodeName)]",
+
+    "nicName": "[concat(variables('nodeName'), '-nic')]",
+    "nicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+    "nicIpAddr": "[concat(parameters('replicaSettings').ipPrefix, parameters('nodeSettings').ipOffset)]",
+    "subnetId": "[parameters('commonSettings').subnetId]",
+
+    "vmName": "[variables('nodeName')]",
+    "vmSize": "Standard_D1",
+    "adminUsername": "[parameters('commonSettings').adminUsername]",
+    "adminPassword": "[parameters('commonSettings').adminPassword]",
+
+    "vhdPathPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
+
+    "filesToDownload": [
+      "[concat(parameters('commonSettings').repoUrl, 'configure-replica-vm.sh')]"
+    ],
+    "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -c ', parameters('replicaSettings').clusterRole, ' -l ', parameters('nodeSettings').lastNode, '-i ', variables('nicIpAddr'))]",
+
+    "osImageReference": {
+      "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
+      "offer": "[variables('osFamilyUbuntu').imageOffer]",
+      "sku": "[variables('osFamilyUbuntu').imageSKU]",
+      "version": "latest"
+    },
+
+    "osFamilyUbuntu": {
+      "osName": "ubuntu",
+      "installerBaseUrl": "http://repo.mongodb.org/apt/ubuntu",
+      "installerPackages": "mongodb-org",
+      "imagePublisher": "Canonical",
+      "imageOffer": "UbuntuServer",
+      "imageSKU": "14.04.4-LTS"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('nicIpAddr')]",
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('vmName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[variables('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": "[variables('osImageReference')]",
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(variables('vhdPathPrefix'), '-osdisk')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[variables('nicId')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'), '/configurereplicavm')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "settings": {
+          "fileUris": "[variables('filesToDownload')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('commandToExecute')]"
+        }
+      }
+    }
+  ]
+}

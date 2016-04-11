@@ -6,7 +6,7 @@
     "replicaSettings": { "type": "object" }
   },
   "variables": {
-    "replicaDeployment": {
+    "replicaDevelopment": {
       "storageAccountCount": 1,
       "nodeCount": 1,
       "arbiter": "Disabled"

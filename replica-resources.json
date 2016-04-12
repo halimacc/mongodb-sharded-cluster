@@ -81,7 +81,7 @@
               "nodeName": "[concat('node', add(copyIndex(), 1))]",
               "availabilitySetId": "[variables('availabilitySetId')]",
               "ipOffset": "[add(copyIndex(), 2)]",
-              "storageAccountName": "[concat(variables('storageAccountNamePrefix'), div(add(copyIndex(), 1), 2))]",
+              "storageAccountName": "[concat(variables('storageAccountNamePrefix'), mod(add(copyIndex(), 1), variables('storageAccountCount')))]",
               "lastNode": 0
             }
           }

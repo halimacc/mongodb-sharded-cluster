@@ -104,7 +104,7 @@
       "apiVersion": "2015-01-01",
       "name": "[concat(variables('replicaName'), '-node0-resources')]",
       "dependsOn": [
-        "nodeLoop"
+        "memberLoop"
       ],
       "properties": {
         "mode": "Incremental",

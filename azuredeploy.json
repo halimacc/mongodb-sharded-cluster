@@ -161,7 +161,7 @@
           "commonSettings": { "value": "[variables('commonSettings')]" },
           "replicaSettings": {
             "value": {
-              "replicaName": "[concat('shard', copyIndex())]",
+              "replicaName": "[concat('shardsvr', copyIndex())]",
               "clusterRole": "shardsvr",
               "replicaSize": "[variables('shardsvrSize')]",
               "ipPrefix": "[concat('10.0.', add(copyIndex(), 2), '.')]"

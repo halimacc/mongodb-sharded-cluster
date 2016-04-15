@@ -196,9 +196,9 @@ initialize_replica()
 	log "initialize replica from primary node"
 
 	# check for replica role
-	$IS_CONFIGSVR=false
+	IS_CONFIGSVR="false"
 	if [ "$CLUSTER_ROLE" == "configsvr" ]; then
-	    configure_replica true
+	    $IS_CONFIGSVR="true"
     fi
 
 	NODE_IP_ADDR=$IP_PREFIX$NODE_IP
@@ -208,16 +208,16 @@ initialize_replica()
 		_id: '$REPLICA_SET_NAME',
 		configsvr: $IS_CONFIGSVR,
 		members: [
-			{_id: 1, host: '$NODE_IP_ADDRESS:$MONGODB_PORT'}
+			{_id: 1, host: '$NODE_IP_ADDR:$MONGODB_PORT'}
 		]
 	}"
-	mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "printjson(rs.initiate($cfg))"
+	mongo $NODE_IP_ADDR:$MONGODB_PORT --eval "printjson(rs.initiate($cfg))"
 
 	# add other members to replica set
 	for i in $(seq 2 $MEMBER_COUNT)
 	do
-		MEMBER_ADDR=$IP_PREFIX$i:$MONGODB_PORT
-	    mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "printjson(rs.add('$MEMBER_ADDR'))"
+        MEMBER_ADDR=$IP_PREFIX$i:$MONGODB_PORT
+        mongo $NODE_IP_ADDR:$MONGODB_PORT --eval "printjson(rs.add('$MEMBER_ADDR'))"
 	done
 }
 
@@ -253,7 +253,7 @@ install_mongodb
 configure_mongodb
 start_mongodb
 
-if [ "$REPLICA_ROLE" == "primary"]; then
+if [ "$REPLICA_ROLE" == "primary" ]; then
     initialize_replica
 fi
 

@@ -4,7 +4,7 @@
   "parameters": {
     "commonSettings": { "type": "object" },
     "replicaSettings": { "type": "object" },
-    "nodeSettings": { "type": "object"}
+    "nodeSettings": { "type": "object" }
   },
   "variables": {
     "location": "[parameters('commonSettings').location]",
@@ -16,16 +16,16 @@
     "subnetId": "[parameters('commonSettings').subnetId]",
 
     "vmName": "[variables('nodeName')]",
-    "vmSize": "Standard_D1",
+    "vmSize": "[parameters('nodeSettings').vmSize]",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
-
-    "vhdPathPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
+    "dataDiskSize": "[parameters('nodeSettings').dataDiskSize]",
+    "vhdUrlPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
 
     "filesToDownload": [
       "[concat(parameters('commonSettings').repoUrl, 'configure-replica-vm.sh')]"
     ],
-    "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -c ', parameters('replicaSettings').clusterRole, ' -l ', parameters('nodeSettings').lastNode, '-i ', variables('nicIpAddr'))]",
+    "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -n ', parameters('replicaSettings').replicaName, ' -c ', parameters('replicaSettings').clusterRole, ' -p ', parameters('replicaSettings').ipPrefix, ' -m ', parameters('nodeSettings').memberCount, ' -r ', parameters('nodeSettings').replicaRole, ' -i ', parameters('nodeSettings').ipOffset)]",
 
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
@@ -86,11 +86,33 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(variables('vhdPathPrefix'), '-osdisk.vhd')]"
+              "uri": "[concat(variables('vhdUrlPrefix'), '-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
-          }
+          },
+          "dataDisks": [
+            {
+              "name": "dataDisk0",
+              "diskSizeGB": "[variables('dataDiskSize')]",
+              "lun": 0,
+              "vhd": {
+                "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk0.vhd')]"
+              },
+              "caching": "ReadOnly",
+              "createOption": "Empty"
+            },
+            {
+              "name": "dataDisk1",
+              "diskSizeGB": "[variables('dataDiskSize')]",
+              "lun": 1,
+              "vhd": {
+                "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk1.vhd')]"
+              },
+              "caching": "ReadOnly",
+              "createOption": "Empty"
+            }
+          ]
         },
         "networkProfile": {
           "networkInterfaces": [
@@ -98,6 +120,22 @@
               "id": "[variables('nicId')]"
             }
           ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2015-05-01-preview",
+      "name": "[concat(variables('vmName'), '/installmongo')]",
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "settings": {
+          "fileUris": "[variables('filesToDownload')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('commandToExecute')]"
         }
       }
     }

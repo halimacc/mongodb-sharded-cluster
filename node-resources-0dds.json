@@ -4,7 +4,7 @@
   "parameters": {
     "commonSettings": { "type": "object" },
     "replicaSettings": { "type": "object" },
-    "nodeSettings": { "type": "object"}
+    "nodeSettings": { "type": "object" }
   },
   "variables": {
     "location": "[parameters('commonSettings').location]",
@@ -16,16 +16,16 @@
     "subnetId": "[parameters('commonSettings').subnetId]",
 
     "vmName": "[variables('nodeName')]",
-    "vmSize": "Standard_A1",
+    "vmSize": "[parameters('nodeSettings').vmSize]",
     "adminUsername": "[parameters('commonSettings').adminUsername]",
     "adminPassword": "[parameters('commonSettings').adminPassword]",
-
-    "vhdPathPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
+    "dataDiskSize": "[parameters('nodeSettings').dataDiskSize]",
+    "vhdUrlPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
 
     "filesToDownload": [
       "[concat(parameters('commonSettings').repoUrl, 'configure-replica-vm.sh')]"
     ],
-    "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -c ', parameters('replicaSettings').clusterRole, ' -l ', parameters('nodeSettings').lastNode, '-i ', variables('nicIpAddr'))]",
+    "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -n ', parameters('replicaSettings').replicaName, ' -c ', parameters('replicaSettings').clusterRole, ' -p ', parameters('replicaSettings').ipPrefix, ' -m ', parameters('nodeSettings').memberCount, ' -r ', parameters('nodeSettings').replicaRole, ' -i ', parameters('nodeSettings').ipOffset)]",
 
     "osImageReference": {
       "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
@@ -86,7 +86,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat(variables('vhdPathPrefix'), '-osdisk')]"
+              "uri": "[concat(variables('vhdUrlPrefix'), '-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -103,12 +103,8 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'), '/configurereplicavm')]",
       "apiVersion": "2015-05-01-preview",
-      "location": "[variables('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
+      "name": "[concat(variables('vmName'), '/installmongo')]",
       "properties": {
         "publisher": "Microsoft.OSTCExtensions",
         "type": "CustomScriptForLinux",

@@ -32,19 +32,25 @@
 PACKAGE_URL=http://repo.mongodb.org/apt/ubuntu
 PACKAGE_NAME=mongodb-org
 MONGODB_PORT=27017
-ADMIN_USER_NAME="root"
-ADMIN_USER_PASSWORD="root"
+
 REPLICA_SET_NAME=""
-NODE_IP_ADDRESS="127.0.0.1"
 CLUSTER_ROLE="shardsvr"
+IP_PREFIX="10.0.0."
+MEMBER_COUNT=1
+NODE_IP="0"
+REPLICA_ROLE="member"
+
 
 help()
 {
 	echo "This script installs MongoDB on the Ubuntu virtual machine image"
 	echo "Options:"
-	echo "		-i Node ip address"	
-	echo "		-r Replica set name"
+	echo "		-n Replica set name"
 	echo "		-c Cluster role"
+	echo "      -p Replica ip prefix"
+	echo "		-m Replica member count"
+	echo "		-r Replica role"
+	echo "		-i Node ip address"	
 }
 
 log()
@@ -66,14 +72,23 @@ fi
 # Parse script parameters
 while getopts :i:r:c:h optname; do  
 	case $optname in
-	i) # Installation package location
-		NODE_IP_ADDRESS=${OPTARG}
-		;;
-	r) # Replica set name
+	n) # Replica set name
 		REPLICA_SET_NAME=${OPTARG}
 		;;
 	c) # Role in a cluster
 		CLUSTER_ROLE=${OPTARG}
+		;;
+	p) # Replica ip range prefix
+		IP_PREFIX=${OPTARG}
+		;;
+	m) # Replica member count
+		MEMBER_COUNT=${OPTARG}
+		;;
+	r) # Replica set role
+		REPLICA_ROLE=${OPTARG}
+		;;
+	i) # Installation package location
+		NODE_IP=${OPTARG}
 		;;
     h) # Helpful hints
 		help
@@ -176,34 +191,34 @@ EOF
 }
 
 #############################################################################
-configure_configsvr()
+initialize_replica()
 {
-	log "Configuring mongod as config server"
+	log "initialize replica from master"
 
+	# check for replica role
+	$IS_CONFIGSVR=false
+	if [ "$CLUSTER_ROLE" == "configsvr" ]; then
+	    configure_replica true
+    fi
+
+	NODE_IP_ADDR=$IP_PREFIX$NODE_IP
+
+	# initial replica with current member now
 	cfg="{
 		_id: '$REPLICA_SET_NAME',
-		configsvr: true,
+		configsvr: $IS_CONFIGSVR,
 		members: [
 			{_id: 1, host: '$NODE_IP_ADDRESS:$MONGODB_PORT'}
 		]
 	}"
-
 	mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "printjson(rs.initiate($cfg))"
-}
 
-#############################################################################
-configure_shardsvr()
-{
-	log "Configuring mongod as shard server"
-
-	cfg="{
-		_id: '$REPLICA_SET_NAME',
-		members: [
-			{_id: 1, host: '$NODE_IP_ADDRESS:$MONGODB_PORT'}
-		]
-	}"
-
-	mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "printjson(rs.initiate($cfg))"
+	# add other members to replica set
+	for i in $(seq 2 $MEMBER_COUNT)
+	do
+		MEMBER_ADDR=$IP_PREFIX$i:$MONGODB_PORT
+	    mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "printjson(rs.add('$MEMBER_ADDR'))"
+	done
 }
 
 #############################################################################
@@ -238,12 +253,8 @@ install_mongodb
 configure_mongodb
 start_mongodb
 
-if [ "$CLUSTER_ROLE" == "configsvr" ]; then
-	configure_configsvr
-fi
-
-if [ "$CLUSTER_ROLE" == "shardsvr" ]; then
-	configure_shardsvr
+if [ "$REPLICA_ROLE" == "master"]; then
+    initialize_replica
 fi
 
 # Exit (proudly)

@@ -6,19 +6,29 @@
     "replicaSettings": { "type": "object" }
   },
   "variables": {
-    "replicaXSmall": {
+    "replicaSizeXSmall": {
       "storageAccountCount": 1,
       "nodeCount": 2,
-      "arbiter": "Enabled"
+      "vmSize": "Standard_D1",
+      "dataDiskSize": 128,
+      "memberTemplate": "node-resources-2dds.json",
+      "arbiterTemplate": "node-resources-0dds.json"
     },
-    "replicaSmall": {
+    "replicaSizeSmall": {
       "storageAccountCount": 1,
       "nodeCount": 3,
-      "arbiter": "Disabled"
+      "vmSize": "Standard_D1",
+      "dataDiskSize": 128,
+      "memberTemplate": "node-resources-2dds.json",
+      "arbiterTemplate": "empty-resources.json"
     },
 
     "replicaSize": "[parameters('replicaSettings').replicaSize]",
-    "replicaSpec": "[variables(concat('replica', variables('replicaSize')))]",
+    "replicaSpec": "[variables(concat('replicaSize', variables('replicaSize')))]",
+
+    "repoUrl": "[parameters('commonSettings').repoUrl]",
+    "nodeTemplateUrl": "[concat(variables('repoUrl'), variables('replicaSpec').nodeTemplate)]",
+    "arbiterTemplateUrl": "[concat(variables('repoUrl'), variables('replicaSpec').arbiterTemplate)]",
 
     "location": "[parameters('commonSettings').location]",
     "replicaName": "[parameters('replicaSettings').replicaName]",
@@ -30,13 +40,7 @@
     "storageAccountType": "[parameters('commonSettings').storageAccountType]",
     "storageAccountCount": "[variables('replicaSpec').storageAccountCount]",
 
-    "repoUrl": "[parameters('commonSettings').repoUrl]",
-    "nodeTemplateUrl": "[concat(variables('repoUrl'), 'replica-node-resources', '-', variables('replicaSize'), '.json')]",
-    "nodeCount": "[variables('replicaSpec').nodeCount]",
-
-    "arbiterTemplateEnabled": "arbiter-resources.json",
-    "arbiterTemplateDisabled": "empty-resources.json",
-    "arbiterTemplateUrl": "[concat(variables('repoUrl'), variables(concat('arbiterTemplate', variables('replicaSpec').arbiter)))]"
+    "memberCount": "[variables('replicaSpec').memberCount]"
   },
   "resources": [
     {
@@ -75,21 +79,24 @@
         },
         "parameters": {
           "commonSettings": { "value": "[parameters('commonSettings')]" },
-          "replicaSettings": { "value": "[parameters('replicaSettings')]"},
+          "replicaSettings": { "value": "[parameters('replicaSettings')]" },
           "nodeSettings": {
             "value": {
               "nodeName": "[concat('node', add(copyIndex(), 1))]",
+              "replicaRole": "member",
+              "memberCount": "varaibles('memberCount')",
               "availabilitySetId": "[variables('availabilitySetId')]",
-              "ipOffset": "[add(copyIndex(), 2)]",
               "storageAccountName": "[concat(variables('storageAccountNamePrefix'), mod(add(copyIndex(), 1), variables('storageAccountCount')))]",
-              "lastNode": 0
+              "vmSize": "[variables('replicaSpec').vmSize]",
+              "dataDiskSize": "[variables('replicaSpec').dataDiskSize]",
+              "ipOffset": "[add(copyIndex(), 2)]"
             }
           }
         }
       },
       "copy": {
-        "count": "[sub(variables('nodeCount'), 1)]",
-        "name": "nodeLoop"
+        "count": "[sub(variables('memberCount'), 1)]",
+        "name": "memberLoop"
       }
     },
     {
@@ -111,10 +118,13 @@
           "nodeSettings": {
             "value": {
               "nodeName": "node0",
+              "replicaRole": "master",
+              "memberCount": "[variables('memberCount')]",
               "availabilitySetId": "[variables('availabilitySetId')]",
               "storageAccountName": "[concat(variables('storageAccountNamePrefix'), 0)]",
-              "ipOffset": 0,
-              "lastNode": "[variables('replicaSpec').nodeCount]"
+              "vmSize": "[variables('replicaSpec').vmSize]",
+              "dataDiskSize": "[variables('replicaSpec').dataDiskSize]",
+              "ipOffset": 1
             }
           }
         }
@@ -133,7 +143,22 @@
           "uri": "[variables('arbiterTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
-        "parameters": { }
+        "parameters": {
+          "commonSettings": { "value": "[parameters('commonSettings')]" },
+          "replicaSettings": { "value": "[parameters('replicaSettings')]" },
+          "nodeSettings": {
+            "value": {
+              "nodeName": "arbiter",
+              "replicaRole": "arbiter",
+              "memberCount": "[variables('memberCount')]",
+              "availabilitySetId": "[variables('availabilitySetId')]",
+              "storageAccountName": "[concat(variables('storageAccountNamePrefix'), 0)]",
+              "vmSize": "Standard_A1",
+              "dataDiskSize": 0,
+              "ipOffset": 0
+            }
+          }
+        }
       }
     }
   ]

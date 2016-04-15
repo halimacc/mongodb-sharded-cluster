@@ -83,7 +83,7 @@
           "nodeSettings": {
             "value": {
               "nodeName": "[concat('node', add(copyIndex(), 1))]",
-              "replicaRole": "member",
+              "replicaRole": "secondary",
               "memberCount": "[variables('memberCount')]",
               "availabilitySetId": "[variables('availabilitySetId')]",
               "storageAccountName": "[concat(variables('storageAccountNamePrefix'), mod(add(copyIndex(), 1), variables('storageAccountCount')))]",
@@ -118,7 +118,7 @@
           "nodeSettings": {
             "value": {
               "nodeName": "node0",
-              "replicaRole": "master",
+              "replicaRole": "primary",
               "memberCount": "[variables('memberCount')]",
               "availabilitySetId": "[variables('availabilitySetId')]",
               "storageAccountName": "[concat(variables('storageAccountNamePrefix'), 0)]",

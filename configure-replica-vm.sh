@@ -38,7 +38,7 @@ CLUSTER_ROLE="shardsvr"
 IP_PREFIX="10.0.0."
 MEMBER_COUNT=1
 NODE_IP="0"
-REPLICA_ROLE="member"
+REPLICA_ROLE="secondary"
 
 
 help()
@@ -193,7 +193,7 @@ EOF
 #############################################################################
 initialize_replica()
 {
-	log "initialize replica from master"
+	log "initialize replica from primary node"
 
 	# check for replica role
 	$IS_CONFIGSVR=false
@@ -253,7 +253,7 @@ install_mongodb
 configure_mongodb
 start_mongodb
 
-if [ "$REPLICA_ROLE" == "master"]; then
+if [ "$REPLICA_ROLE" == "primary"]; then
     initialize_replica
 fi
 

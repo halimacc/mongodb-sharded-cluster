@@ -228,7 +228,7 @@ start_mongodb()
 	service mongod start
 	
 	# Wait for MongoDB daemon to start and initialize for the first time (this may take up to a minute or so)
-	while ! timeout 1 bash -c "echo > /dev/tcp/$NODE_IP_ADDRESS/$MONGODB_PORT"; do sleep 10; done
+	while ! timeout 1 bash -c "echo > /dev/tcp/$IP_PREIFX$NODE_IP/$MONGODB_PORT"; do sleep 10; done
 }
 
 stop_mongodb()

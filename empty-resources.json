@@ -1,7 +1,11 @@
 ﻿{
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {},
-    "variables": {},
-    "resources": []
- }
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "commonSettings": { "type": "object" },
+    "replicaSettings": { "type": "object" },
+    "nodeSettings": { "type": "object" }
+  },
+  "variables": { },
+  "resources": [ ]
+}

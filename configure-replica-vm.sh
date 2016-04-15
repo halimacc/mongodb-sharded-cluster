@@ -222,6 +222,17 @@ initialize_replica()
 }
 
 #############################################################################
+add_arbiter()
+{
+	log "Add arbiter to replica"
+
+	PRIMARY_NODE_IP=1
+	PRIMARY_ADDR=$IP_PREFIX$PRIMARY_NODE_IP
+	NODE_ADDR=$IP_PREFIX$NODE_IP:$MONGODB_PORT
+	mongo $PRIMARY_ADDR:$MONGODB_PORT --eval "printjson(rs.add('$NODE_ADDR', true))"
+}
+
+#############################################################################
 start_mongodb()
 {
 	log "Starting MongoDB daemon processes"
@@ -256,6 +267,12 @@ start_mongodb
 if [ "$REPLICA_ROLE" == "primary" ]; then
     initialize_replica
 fi
+
+if [ "$REPLICA_ROLE" == "arbiter" ]; then
+    add_arbiter
+fi
+
+
 
 # Exit (proudly)
 exit 0

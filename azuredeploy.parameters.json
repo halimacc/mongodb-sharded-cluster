@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountPrefix": {
-      "value": "msct"
+      "value": "mscu"
     },
     "configServersSize": {
       "value": "Small"

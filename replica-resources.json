@@ -27,7 +27,7 @@
     "replicaSpec": "[variables(concat('replicaSize', variables('replicaSize')))]",
 
     "repoUrl": "[parameters('commonSettings').repoUrl]",
-    "nodeTemplateUrl": "[concat(variables('repoUrl'), variables('replicaSpec').nodeTemplate)]",
+    "memberTemplateUrl": "[concat(variables('repoUrl'), variables('replicaSpec').memberTemplate)]",
     "arbiterTemplateUrl": "[concat(variables('repoUrl'), variables('replicaSpec').arbiterTemplate)]",
 
     "location": "[parameters('commonSettings').location]",
@@ -74,7 +74,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('nodeTemplateUrl')]",
+          "uri": "[variables('memberTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -109,7 +109,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('nodeTemplateUrl')]",
+          "uri": "[variables('memberTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

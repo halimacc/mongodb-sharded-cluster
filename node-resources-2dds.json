@@ -127,6 +127,7 @@
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2015-05-01-preview",
       "name": "[concat(variables('vmName'), '/installmongo')]",
+      "location": "[variables('location')]",
       "properties": {
         "publisher": "Microsoft.OSTCExtensions",
         "type": "CustomScriptForLinux",

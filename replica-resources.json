@@ -8,7 +8,7 @@
   "variables": {
     "replicaSizeXSmall": {
       "storageAccountCount": 1,
-      "nodeCount": 2,
+      "memberCount": 2,
       "vmSize": "Standard_D1",
       "dataDiskSize": 128,
       "memberTemplate": "node-resources-2dds.json",
@@ -16,7 +16,7 @@
     },
     "replicaSizeSmall": {
       "storageAccountCount": 1,
-      "nodeCount": 3,
+      "memberCount": 3,
       "vmSize": "Standard_D1",
       "dataDiskSize": 128,
       "memberTemplate": "node-resources-2dds.json",

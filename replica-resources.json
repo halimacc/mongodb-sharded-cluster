@@ -84,7 +84,7 @@
             "value": {
               "nodeName": "[concat('node', add(copyIndex(), 1))]",
               "replicaRole": "member",
-              "memberCount": "varaibles('memberCount')",
+              "memberCount": "[variables('memberCount')]",
               "availabilitySetId": "[variables('availabilitySetId')]",
               "storageAccountName": "[concat(variables('storageAccountNamePrefix'), mod(add(copyIndex(), 1), variables('storageAccountCount')))]",
               "vmSize": "[variables('replicaSpec').vmSize]",

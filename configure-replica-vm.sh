@@ -70,7 +70,7 @@ then
 fi
 
 # Parse script parameters
-while getopts :i:r:c:h optname; do  
+while getopts :n:c:p:m:r:i:h optname; do  
 	case $optname in
 	n) # Replica set name
 		REPLICA_SET_NAME=${OPTARG}

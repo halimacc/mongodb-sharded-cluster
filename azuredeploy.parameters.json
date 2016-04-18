@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountPrefix": {
-      "value": "mscx"
+      "value": "mscy"
     },
     "configServersSize": {
       "value": "Small"
@@ -12,7 +12,7 @@
       "value": 2
     },
     "shardSize": {
-      "value": "Small"
+      "value": "XSmall"
     },
     "routerCount": {
       "value": 1

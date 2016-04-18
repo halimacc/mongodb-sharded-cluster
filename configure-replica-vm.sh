@@ -198,7 +198,7 @@ initialize_replica()
 	# check for replica role
 	IS_CONFIGSVR="false"
 	if [ "$CLUSTER_ROLE" == "configsvr" ]; then
-	    $IS_CONFIGSVR="true"
+	    IS_CONFIGSVR="true"
     fi
 
 	NODE_IP_ADDR=$IP_PREFIX$NODE_IP

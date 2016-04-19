@@ -81,6 +81,38 @@ while getopts :i:s:h optname; do
 done
 
 #############################################################################
+tune_memory()
+{
+	# Disable THP on a running system
+	echo never > /sys/kernel/mm/transparent_hugepage/enabled
+	echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+	# Disable THP upon reboot
+	cp -p /etc/rc.local /etc/rc.local.`date +%Y%m%d-%H:%M`
+	sed -i -e '$i \ if test -f /sys/kernel/mm/transparent_hugepage/enabled; then \
+ 			 echo never > /sys/kernel/mm/transparent_hugepage/enabled \
+		  fi \ \
+		if test -f /sys/kernel/mm/transparent_hugepage/defrag; then \
+		   echo never > /sys/kernel/mm/transparent_hugepage/defrag \
+		fi \
+		\n' /etc/rc.local
+}
+
+tune_system()
+{
+	# Add local machine name to the hosts file to facilitate IP address resolution
+	if grep -q "${HOSTNAME}" /etc/hosts
+	then
+	  echo "${HOSTNAME} was found in /etc/hosts"
+	else
+	  echo "${HOSTNAME} was not found in and will be added to /etc/hosts"
+	  # Append it to the hsots file if not there
+	  echo "127.0.0.1 $(hostname)" >> /etc/hosts
+	  log "Hostname ${HOSTNAME} added to /etc/hosts"
+	fi	
+}
+
+#############################################################################
 install_mongodb()
 {
 	log "Downloading MongoDB package $PACKAGE_NAME from $PACKAGE_URL"
@@ -119,7 +151,7 @@ systemLog:
 net:
     port: $MONGODB_PORT
 sharding:
-    configDB: con/10.0.0.8:$MONGODB_PORT
+    configDB: configsvr/10.0.1.1:$MONGODB_PORT
 EOF
 	
 	nohup mongos --config /etc/mongos.conf &
@@ -134,9 +166,9 @@ configure_sharded_cluster()
 
 	for i in $(seq 1 $SHARD_COUNT)
 	do
-		shardName=sha$[ $i - 1 ]
-		shardIp=$[ 16 * $i ]
-		mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "sh.addShard('$shardName/10.0.0.$shardIp:$MONGODB_PORT')"	
+		SHARD_NAME=shardsvr$[ $i - 1 ]
+		SHARD_ADDR=10.0.$[ $i + 1 ].1:$MONGODB_PORT
+		mongo $NODE_IP_ADDRESS:$MONGODB_PORT --eval "sh.addShard('$SHARD_NAME/$SHARD_ADDR')"	
 	done
 }
 
@@ -157,8 +189,8 @@ stop_mongodb()
 }
 
 
-#tune_memory
-#tune_system
+tune_memory
+tune_system
 install_mongodb
 start_mongos
 configure_sharded_cluster

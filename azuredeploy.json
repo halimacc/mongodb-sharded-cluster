@@ -79,18 +79,17 @@
       "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '/subnets/', variables('subnetName'))]",
 
       "adminUsername": "[parameters('adminUsername')]",
-      "adminPassword": "[parameters('adminPassword')]",
-
-      "shardCount": "[parameters('shardCount')]"
+      "adminPassword": "[parameters('adminPassword')]"
     },
+
+    "shardCount": "[parameters('shardCount')]",
+    "routerCount": "[parameters('routerCount')]",
 
     "replicaTemplateUrl": "[concat(variables('commonSettings').repoUrl, 'replica-resources.json')]",
     "routerTemplateUrl": "[concat(variables('commonSettings').repoUrl, 'router-resources.json')]",
 
     "configsvrSize": "[parameters('configServersSize')]",
-    "shardsvrSize": "[parameters('shardSize')]",
-
-    "routerCount": "[parameters('routerCount')]"
+    "shardsvrSize": "[parameters('shardSize')]"
   },
   "resources": [
     {
@@ -148,7 +147,7 @@
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
       "copy": {
-        "count": "[variables('commonSettings').shardCount]",
+        "count": "[variables('shardCount')]",
         "name": "shardsvrLoop"
       },
       "properties": {
@@ -165,6 +164,36 @@
               "clusterRole": "shardsvr",
               "replicaSize": "[variables('shardsvrSize')]",
               "ipPrefix": "[concat('10.0.', add(copyIndex(), 2), '.')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "[concat('router', copyIndex(), '-resources')]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/configsvr-resources",
+        "shardsvrLoop"
+      ],
+      "copy": {
+        "count": "[variables('routerCount')]",
+        "name": "routerLoop"
+      },
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('routerTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": { "value": "[variables('commonSettings')]" },
+          "routerSettings": {
+            "value": {
+              "routerName": "[concat('router', copyIndex())]",
+              "shardCount": "[variables('shardCount')]",
+              "ipOffset": "[add(4, copyIndex())]"
             }
           }
         }

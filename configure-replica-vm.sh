@@ -202,7 +202,7 @@ net:
     port: $MONGODB_PORT
 storage:
     dbPath: $MONGODB_DATA/db
-	directoryPerDB: true
+    directoryPerDB: true
     journal:
         enabled: true
 replication:

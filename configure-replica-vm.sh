@@ -33,6 +33,10 @@ PACKAGE_URL=http://repo.mongodb.org/apt/ubuntu
 PACKAGE_NAME=mongodb-org
 MONGODB_PORT=27017
 
+DATA_DISKS="/datadisks"
+DATA_MOUNTPOINT="$DATA_DISKS/disk1"
+MONGODB_DATA="$DATA_MOUNTPOINT/mongodb"
+
 REPLICA_SET_NAME=""
 CLUSTER_ROLE="shardsvr"
 IP_PREFIX="10.0.0."
@@ -103,6 +107,15 @@ while getopts :n:c:p:m:r:i:h optname; do
 done
 
 #############################################################################
+configure_datadisks()
+{
+	# Stripe all of the data 
+	log "Formatting and configuring the data disks"
+	
+	bash ./vm-disk-utils-0.1.sh -b $DATA_DISKS -s
+}
+
+#############################################################################
 tune_memory()
 {
 	# Disable THP on a running system
@@ -163,6 +176,14 @@ install_mongodb()
 configure_mongodb()
 {
 	log "Configuring MongoDB"
+
+	mkdir -p "$MONGODB_DATA"
+	mkdir "$MONGODB_DATA/log"
+	mkdir "$MONGODB_DATA/db"
+	
+	chown -R mongodb:mongodb "$MONGODB_DATA/db"
+	chown -R mongodb:mongodb "$MONGODB_DATA/log"
+	chmod 755 "$MONGODB_DATA"
 	
 	mkdir /var/run/mongodb
 	touch /var/run/mongodb/mongod.pid
@@ -171,7 +192,7 @@ configure_mongodb()
 	tee /etc/mongod.conf > /dev/null <<EOF
 systemLog:
     destination: file
-    path: var/log/mongodb/mongod.log
+    path: $MONGODB_DATA/log/mongod.log
     quiet: true
     logAppend: true
 processManagement:
@@ -180,7 +201,8 @@ processManagement:
 net:
     port: $MONGODB_PORT
 storage:
-    dbPath: var/lib/mongodb
+    dbPath: $MONGODB_DATA/db
+	directoryPerDB: true
     journal:
         enabled: true
 replication:
@@ -257,7 +279,7 @@ stop_mongodb()
 	sleep 15s	
 }
 
-
+configure_datadisks
 tune_memory
 tune_system
 install_mongodb

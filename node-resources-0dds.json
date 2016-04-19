@@ -23,6 +23,7 @@
     "vhdUrlPrefix": "[concat('https://', parameters('nodeSettings').storageAccountName, '.blob.core.windows.net/', parameters('commonSettings').storageContainerName, '/', variables('nodeName'))]",
 
     "filesToDownload": [
+      "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/shared_scripts/ubuntu/vm-disk-utils-0.1.sh",
       "[concat(parameters('commonSettings').repoUrl, 'configure-replica-vm.sh')]"
     ],
     "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -n ', parameters('replicaSettings').replicaName, ' -c ', parameters('replicaSettings').clusterRole, ' -p ', parameters('replicaSettings').ipPrefix, ' -m ', parameters('nodeSettings').memberCount, ' -r ', parameters('nodeSettings').replicaRole, ' -i ', parameters('nodeSettings').ipOffset)]",

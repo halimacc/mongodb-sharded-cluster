@@ -21,6 +21,6 @@ $params=@{
 
 New-AzureRMResourceGroupDeployment -Name DeployMongoShardedCluster -ResourceGroupName $resourceGroupName -TemplateFile .\azuredeploy.json -TemplateParameterObject $params
 
-$ipaddr = Get-AzureRmPublicIpAddress -Name router0-pubip -ResourceGroupName $resourceGroupName
+$ipaddr = Get-AzureRmPublicIpAddress -Name "router0-pubip" -ResourceGroupName $resourceGroupName
 
 echo "router0: $($ipaddr.DnsSettings.Fqdn):27017"

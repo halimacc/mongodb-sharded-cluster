@@ -1,7 +1,7 @@
-$resourceGroupName="amsc-group-33"
+$resourceGroupName="amsc-group-34"
 New-AzureRmResourceGroup -Name $resourceGroupName -Location "East Asia"
 
-$storageAccountPrefix="msctest"
+$storageAccountPrefix="msca"
 $configServersSize="Small"
 $shardCount=2;
 $shardSize="XSmall";
@@ -23,6 +23,7 @@ $params=@{
 
 New-AzureRMResourceGroupDeployment -Name DeployMongoShardedCluster -ResourceGroupName $resourceGroupName -TemplateFile .\azuredeploy.json -TemplateParameterObject $params
 
-$ipaddr = Get-AzureRmPublicIpAddress -Name "router0-pubip" -ResourceGroupName $resourceGroupName
-
-echo "router0: $($ipaddr.DnsSettings.Fqdn):27017"
+for($i=0; $i -lt $routerCount; $i++){
+	$ipaddr = Get-AzureRmPublicIpAddress -Name "router$i-pubip" -ResourceGroupName $resourceGroupName
+	echo "router$i : $($ipaddr.IpAddress):27017"
+}

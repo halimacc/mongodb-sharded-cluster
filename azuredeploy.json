@@ -48,7 +48,7 @@
       "type": "int",
       "defaultValue": 1,
       "minValue": 1,
-      "maxValue": 1,
+      "maxValue": 8,
       "metadata": {
         "description": "Count of Router component in cluster, 1 Router at least is required."
       }

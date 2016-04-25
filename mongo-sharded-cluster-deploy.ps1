@@ -1,11 +1,11 @@
-$resourceGroupName="amsc-group-34"
+$resourceGroupName="amsc-group-35"
 New-AzureRmResourceGroup -Name $resourceGroupName -Location "East Asia"
 
-$storageAccountPrefix="msca"
+$storageAccountPrefix="mscb"
 $configServersSize="Small"
 $shardCount=2;
-$shardSize="XSmall";
-$routerCount=1;
+$shardSize="Small";
+$routerCount=2;
 $osFamily="UbuntuServer14.04LTS";
 $adminUsername="azureuser";
 $adminPassword="User@123";
@@ -21,7 +21,7 @@ $params=@{
 	adminPassword=$adminPassword;
 }
 
-New-AzureRMResourceGroupDeployment -Name DeployMongoShardedCluster -ResourceGroupName $resourceGroupName -TemplateFile .\azuredeploy.json -TemplateParameterObject $params
+New-AzureRMResourceGroupDeployment -Name mongodb-sharded-cluster -ResourceGroupName $resourceGroupName -TemplateFile .\azuredeploy.json -TemplateParameterObject $params
 
 for($i=0; $i -lt $routerCount; $i++){
 	$ipaddr = Get-AzureRmPublicIpAddress -Name "router$i-pubip" -ResourceGroupName $resourceGroupName

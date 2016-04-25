@@ -22,6 +22,38 @@
       "memberTemplate": "node-resources-2dds.json",
       "arbiterTemplate": "empty-resources.json"
     },
+    "replicaSizeMedium": {
+      "storageAccountCount": 2,
+      "memberCount": 4,
+      "vmSize": "Standard_D2",
+      "dataDiskSize": 256,
+      "memberTemplate": "node-resources-4dds.json",
+      "arbiterTemplate": "node-resources-0dds.json"
+    },
+    "replicaSizeLarge": {
+      "storageAccountCount": 4,
+      "memberCount": 8,
+      "vmSize": "Standard_D2",
+      "dataDiskSize": 256,
+      "memberTemplate": "node-resources-4dds.json",
+      "arbiterTemplate": "node-resources-0dds.json"
+    },
+    "replicaSizeXLarge": {
+      "storageAccountCount": 4,
+      "memberCount": 8,
+      "vmSize": "Standard_D3",
+      "dataDiskSize": 512,
+      "memberTemplate": "node-resources-4dds.json",
+      "arbiterTemplate": "node-resources-0dds.json"
+    },
+    "replicaSizeXXLarge": {
+      "storageAccountCount": 8,
+      "memberCount": 16,
+      "vmSize": "Standard_D3",
+      "dataDiskSize": 512,
+      "memberTemplate": "node-resources-4dds.json",
+      "arbiterTemplate": "empty-resources.json"
+    },
 
     "replicaSize": "[parameters('replicaSettings').replicaSize]",
     "replicaSpec": "[variables(concat('replicaSize', variables('replicaSize')))]",

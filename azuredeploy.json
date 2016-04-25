@@ -34,7 +34,11 @@
       "defaultValue": "Small",
       "allowedValues": [
         "XSmall",
-        "Small"
+        "Small",
+        "Medium",
+        "Large",
+        "XLarge",
+        "XXLarge"
       ],
       "metadata": {
         "description": "Replica size of single Shard component in cluster."

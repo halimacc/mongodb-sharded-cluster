@@ -56,6 +56,9 @@
     "osFamily": {
       "type": "string",
       "defaultValue": "UbuntuServer14.04LTS",
+      "allowedValues": [
+        "UbuntuServer14.04LTS"
+      ],
       "metadata": {
         "description": "Operating system version mongo instances are deployed on."
       }

@@ -6,6 +6,7 @@ $configServersSize="Small"
 $shardCount=2;
 $shardSize="XSmall";
 $routerCount=1;
+$osFamily="UbuntuServer14.04LTS";
 $adminUsername="azureuser";
 $adminPassword="User@123";
 
@@ -15,6 +16,7 @@ $params=@{
 	shardCount=$shardCount;
 	shardSize=$shardSize;
 	routerCount=$routerCount;
+	osFamily=$osFamily;
 	adminUsername=$adminUsername;
 	adminPassword=$adminPassword;
 }

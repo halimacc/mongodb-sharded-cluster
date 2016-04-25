@@ -17,12 +17,14 @@
     "routerCount": {
       "value": 1
     },
+    "osFamily": {
+      "value": "UbuntuServer14.04LTS"
+    },
     "adminUsername": {
       "value": "chong"
     },
     "adminPassword": {
       "value": ""
     }
-
   }
 }

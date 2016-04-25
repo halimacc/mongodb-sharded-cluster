@@ -53,16 +53,23 @@
         "description": "Count of Router component in cluster, 1 Router at least is required."
       }
     },
+    "osFamily": {
+      "type": "string",
+      "defaultValue": "UbuntuServer14.04LTS",
+      "metadata": {
+        "description": "Operating system version mongo instances are deployed on."
+      }
+    },
     "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Administrator user name used when provisioning virtual machines"
+        "description": "Administrator user name used when provisioning virtual machines."
       }
     },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Administrator password used when provisioning virtual machines"
+        "description": "Administrator password used when provisioning virtual machines."
       }
     }
   },
@@ -71,6 +78,15 @@
     "virtualNetworkAddressPrefix": "10.0.0.0/16",
     "subnetName": "msc-subnet",
     "subnetAddressPrefix": "10.0.0.0/16",
+
+    "osFamilyUbuntuServer14.04LTS": {
+      "osName": "ubuntu",
+      "installerBaseUrl": "http://repo.mongodb.org/apt/ubuntu",
+      "installerPackages": "mongodb-org",
+      "imagePublisher": "Canonical",
+      "imageOffer": "UbuntuServer",
+      "imageSKU": "14.04.4-LTS"
+    },
 
     "commonSettings": {
       "location": "[resourceGroup().location]",
@@ -82,6 +98,7 @@
 
       "subnetId": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '/subnets/', variables('subnetName'))]",
 
+      "osFamily": "[variables(concat('osFamily', parameters('osFamily')))]",
       "adminUsername": "[parameters('adminUsername')]",
       "adminPassword": "[parameters('adminPassword')]"
     },

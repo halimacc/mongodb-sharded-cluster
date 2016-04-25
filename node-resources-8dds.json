@@ -28,20 +28,13 @@
     ],
     "commandToExecute": "[concat('bash configure-replica-vm.sh', ' -n ', parameters('replicaSettings').replicaName, ' -c ', parameters('replicaSettings').clusterRole, ' -p ', parameters('replicaSettings').ipPrefix, ' -m ', parameters('nodeSettings').memberCount, ' -r ', parameters('nodeSettings').replicaRole, ' -i ', parameters('nodeSettings').ipOffset)]",
 
-    "osImageReference": {
-      "publisher": "[variables('osFamilyUbuntu').imagePublisher]",
-      "offer": "[variables('osFamilyUbuntu').imageOffer]",
-      "sku": "[variables('osFamilyUbuntu').imageSKU]",
-      "version": "latest"
-    },
+    "osFamily": "[parameters('commonSettings').osFamily]",
 
-    "osFamilyUbuntu": {
-      "osName": "ubuntu",
-      "installerBaseUrl": "http://repo.mongodb.org/apt/ubuntu",
-      "installerPackages": "mongodb-org",
-      "imagePublisher": "Canonical",
-      "imageOffer": "UbuntuServer",
-      "imageSKU": "14.04.4-LTS"
+    "osImageReference": {
+      "publisher": "[variables('osFamily').imagePublisher]",
+      "offer": "[variables('osFamily').imageOffer]",
+      "sku": "[variables('osFamily').imageSKU]",
+      "version": "latest"
     }
   },
   "resources": [

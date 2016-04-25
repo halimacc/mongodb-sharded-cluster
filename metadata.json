@@ -1,0 +1,7 @@
+﻿{
+  "itemDisplayName": "MongoDB sharded cluster on Ubuntu VMs",
+  "description": "This template creates a MongoDB sharded cluster deployment on Ubuntu virtual machines, and configures the MongoDB installation for high availability and scablility",
+  "summary": "This template creates a MongoDB sharded cluster deployment on Ubuntu virtual machines",
+  "githubUsername": "halimacc",
+  "dateUpdated": "2016-04-25"
+}

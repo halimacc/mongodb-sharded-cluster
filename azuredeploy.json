@@ -38,7 +38,9 @@
         "Medium",
         "Large",
         "XLarge",
-        "XXLarge"
+        "XXLarge",
+        "Test2dds",
+        "Test4dds"
       ],
       "metadata": {
         "description": "Replica size of single Shard component in cluster."

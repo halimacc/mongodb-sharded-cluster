@@ -54,6 +54,22 @@
       "memberTemplate": "node-resources-4dds.json",
       "arbiterTemplate": "empty-resources.json"
     },
+    "replicaSizeTest2dds": {
+      "storageAccountCount": 1,
+      "memberCount": 3,
+      "vmSize": "Standard_DS3",
+      "dataDiskSize": 512,
+      "memberTemplate": "node-resources-2dds.json",
+      "arbiterTemplate": "empty-resources.json"
+    },
+    "replicaSizeTest4dds": {
+      "storageAccountCount": 1,
+      "memberCount": 3,
+      "vmSize": "Standard_DS3",
+      "dataDiskSize": 512,
+      "memberTemplate": "node-resources-4dds.json",
+      "arbiterTemplate": "empty-resources.json"
+    },
 
     "replicaSize": "[parameters('replicaSettings').replicaSize]",
     "replicaSpec": "[variables(concat('replicaSize', variables('replicaSize')))]",

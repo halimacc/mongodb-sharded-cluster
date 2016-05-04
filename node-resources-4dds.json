@@ -109,7 +109,7 @@
             {
               "name": "dataDisk2",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 0,
+              "lun": 2,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk2.vhd')]"
               },
@@ -119,7 +119,7 @@
             {
               "name": "dataDisk4",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 1,
+              "lun": 3,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk3.vhd')]"
               },

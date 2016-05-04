@@ -109,7 +109,7 @@
             {
               "name": "dataDisk2",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 0,
+              "lun": 2,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk2.vhd')]"
               },
@@ -119,7 +119,7 @@
             {
               "name": "dataDisk4",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 1,
+              "lun": 3,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk3.vhd')]"
               },
@@ -129,7 +129,7 @@
             {
               "name": "dataDisk0",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 0,
+              "lun": 4,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk4.vhd')]"
               },
@@ -139,7 +139,7 @@
             {
               "name": "dataDisk1",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 1,
+              "lun": 5,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk5.vhd')]"
               },
@@ -149,7 +149,7 @@
             {
               "name": "dataDisk2",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 0,
+              "lun": 6,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk6.vhd')]"
               },
@@ -159,7 +159,7 @@
             {
               "name": "dataDisk4",
               "diskSizeGB": "[variables('dataDiskSize')]",
-              "lun": 1,
+              "lun": 7,
               "vhd": {
                 "uri": "[concat(variables('vhdUrlPrefix'), '-datadisk7.vhd')]"
               },
